@@ -1,0 +1,154 @@
+uri: containerops/singular/etcd-3.2.8-flanneld-0.7.1-docker-17.04.0-ce-k8s-1.7.0
+title: Deploy Kubernetes With etcd-3.2.8 flanneld-0.7.1 docker-17.04.0-ce k8s-1.7.0
+tag: latest
+nodes:
+  -
+    ip: 192.168.43.90
+    user: root
+    distro: ubuntu
+  -
+    ip: 192.168.43.91
+    user: root
+    distro: ubuntu
+  -
+    ip: 192.168.43.92
+    user: root
+    distro: ubuntu
+tools:
+  ssh:
+    private: /home/lance/Development/singular/ssh/id_rsa
+    public: /home/lance/Development/singular/ssh/id_rsa.pub
+# service:
+#   region: sfo2
+#   size: 4gb
+#   image: ubuntu-17-04-x64
+#   nodes: 3
+infras:
+  -
+    name: etcd
+    version: etcd-3.2.8
+    master: 3
+    minion: 0
+    components:
+      -
+        binary: etcd
+        url: /home/lance/Development/singular/binaries/etcd/3.2.8/etcd
+        package: false
+        systemd: etcd-3.2.8
+        ca: etcd-3.2.8
+      -
+        binary: etcdctl
+        url: /home/lance/Development/singular/binaries/etcd/3.2.8/etcdctl
+        package: false
+  -
+    name: flannel
+    version: flannel-0.7.1
+    master: 3
+    minion: 0
+    dependencies:
+      - etcd
+    components:
+      -
+        binary: flanneld
+        url: /home/lance/Development/singular/binaries/flannel/0.7.1/flanneld
+        package: false
+        systemd: flannel-0.7.1
+        ca: flannel-0.7.1
+        before:
+          - "etcdctl --endpoints={{.Nodes}} --ca-file=/etc/kubernetes/ssl/ca.pem --cert-file=/etc/flanneld/ssl/flanneld.pem --key-file=/etc/flanneld/ssl/flanneld-key.pem set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
+      -
+        binary: mk-docker-opts.sh
+        url: /home/lance/Development/singular/binaries/flannel/0.7.1/mk-docker-opts.sh
+        package: false
+  -
+    name: docker
+    version: docker-17.04.0-ce
+    master: 3
+    minion: 0
+    dependencies:
+      - flannel
+    components:
+      -
+        binary: docker
+        url: /home/lance/Development/singular/binaries/docker/17.04.0-ce/docker
+        package: false
+        systemd: docker-17.04.0-ce
+        before:
+          - "iptables -F"
+          - "iptables -X"
+          - "iptables -F -t nat"
+          - "iptables -X -t nat"
+        after:
+          - "iptables -w -P FORWARD ACCEPT"
+      -
+        binary: dockerd
+        url: /home/lance/Development/singular/binaries/docker/17.04.0-ce/dockerd
+        package: false
+      -
+        binary: docker-init
+        url: /home/lance/Development/singular/binaries/docker/17.04.0-ce/docker-init
+        package: false
+      -
+        binary: docker-proxy
+        url: /home/lance/Development/singular/binaries/docker/17.04.0-ce/docker-proxy
+        package: false
+      -
+        binary: docker-runc
+        url: /home/lance/Development/singular/binaries/docker/17.04.0-ce/docker-runc
+        package: false
+      -
+        binary: docker-containerd
+        url: /home/lance/Development/singular/binaries/docker/17.04.0-ce/docker-containerd
+        package: false
+      -
+        binary: docker-containerd-ctr
+        url: /home/lance/Development/singular/binaries/docker/17.04.0-ce/docker-containerd-ctr
+        package: false
+      -
+        binary: docker-containerd-shim
+        url: /home/lance/Development/singular/binaries/docker/17.04.0-ce/docker-containerd-shim
+        package: false
+  -
+    name: kubernetes
+    version: kubernetes-1.7.0
+    master: 1
+    minion: 3
+    dependencies:
+      - etcd
+      - flannel
+      - docker
+    components:
+      -
+        binary: kube-apiserver
+        url: /home/lance/Development/singular/binaries/kubernetes/1.7.0/kube-apiserver
+        package: false
+        systemd: kube-apiserver-1.7.0
+        ca: kubernetes-1.7.0
+      -
+        binary: kube-controller-manager
+        url: /home/lance/Development/singular/binaries/kubernetes/1.7.0/kube-controller-manager
+        package: false
+        systemd: kube-controller-manager-1.7.0
+        ca: kubernetes-1.7.0
+      -
+        binary: kube-scheduler
+        url: /home/lance/Development/singular/binaries/kubernetes/1.7.0/kube-scheduler
+        package: false
+        systemd: kube-scheduler-1.7.0
+      -
+        binary: kubectl
+        url: /home/lance/Development/singular/binaries/kubernetes/1.7.0/kubectl
+        package: false
+      -
+        binary: kubelet
+        url: /home/lance/Development/singular/binaries/kubernetes/1.7.0/kubelet
+        package: false
+        systemd: kubelet-1.7.0
+      -
+        binary: kube-proxy
+        url: /home/lance/Development/singular/binaries/kubernetes/1.7.0/kube-proxy
+        package: false
+        systemd: kube-proxy-1.7.0
+        ca: kube-proxy-1.7.0
+description: WIP
+short: WIP
