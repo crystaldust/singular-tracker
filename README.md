@@ -1,0 +1,4 @@
+-- TODO --
+- 测试脚本中，等待pod创建成功后再进行测试
+- pod-infra-image切换成本地(默认是registry.access.redhat.com/rhel7/pod-infrastructure:latest)
+- iptables规则未生效，检查是否是因为ssh command 为&&拼接执行的原因
