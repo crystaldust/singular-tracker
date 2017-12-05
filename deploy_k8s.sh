@@ -13,7 +13,7 @@ waitForHost '192.168.43.91'
 waitForHost '192.168.43.92'
 # wait
 
-singular deploy template ./template-vm.yml  --config ~/.containerops/confs/singular.toml
+singular deploy template ./template-vm.yml --db true --config ~/.containerops/confs/singular.toml
 
 # Add the insecure registry to all the nodes
 function addInsecureRegistry {
