@@ -16,16 +16,19 @@ function cloneVM() {
 	vboxmanage startvm --type headless $dstName
 
 	while true; do ping -c1 192.168.43.90 > /dev/null && break; done
+	sleep 10
 
 	if [ "$isMaster" = false ]; then
 		ssh root@192.168.43.90 "sed -i s/90/$ipTail/ /etc/network/interfaces"
 	fi
 	echo "reboot"
 	ssh root@192.168.43.90 'reboot'
+	sleep 20
 }
 
-cloneVM true "master-ubuntux"
 cloneVM false "node1-ubuntux" "91"
 cloneVM false "node2-ubuntux" "92"
+sleep 10
+cloneVM true "master-ubuntux"
 
 sed /192.168.43/d ~/.ssh/known_hosts
