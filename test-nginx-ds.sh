@@ -40,6 +40,6 @@ function testAndRun {
 	ssh root@$host 'chmod +x /root/testservice.sh'
 	ssh root@$host '/root/testservice.sh'
 }
-testAndRun "192.168.43.90"
-testAndRun "192.168.43.91"
-testAndRun "192.168.43.92"
+testAndRun "192.168.43.80"
+testAndRun "192.168.43.81"
+testAndRun "192.168.43.82"

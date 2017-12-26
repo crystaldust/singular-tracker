@@ -24,16 +24,22 @@ function cloneVM() {
 
 	if [ "$isMaster" = false ]; then
 		ssh root@$baseSubnet.80 "sed -i s/80/$ipTail/ /etc/sysconfig/network-scripts/ifcfg-enp0s3"
+
+		# ssh root@$baseSubnet.80 "systemctl restart network" &
+		# echo "network reconfigured to $baseSubnet.$ipTail"
+
+		echo "reboot"
+		ssh root@$baseSubnet.80 'reboot'
+		sleep 20
 	fi
 
-	echo "reboot"
-	ssh root@$baseSubnet.80 'reboot'
-	sleep 20
+	# echo "reboot"
+	# ssh root@$baseSubnet.80 'reboot'
 }
 
-cloneVM false "node1-centosmin" "81" "node1"
-cloneVM false "node2-centosmin" "82" "node2"
-sleep 10
+cloneVM false "node1-centosmin" "81" "worker1"
+cloneVM false "node2-centosmin" "82" "worker2"
+# sleep 10
 cloneVM true "master-centosmin" "80" "master"
 
 sed /$baseSubnet/d ~/.ssh/known_hosts
