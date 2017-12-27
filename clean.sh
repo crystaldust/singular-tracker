@@ -1,13 +1,17 @@
 #!/bin/bash
-scp ./clean.master.sh root@192.168.43.80:/root/
-scp ./clean.node.sh root@192.168.43.81:/root/
-scp ./clean.node.sh root@192.168.43.82:/root/
+subnet_pattern=$1
+scp ./clean.master.sh root@192.168.${subnet_pattern}0:/root/ &
+scp ./clean.node.sh root@192.168.${subnet_pattern}1:/root/ &
+scp ./clean.node.sh root@192.168.${subnet_pattern}2:/root/ &
+wait
 
-ssh root@192.168.43.80 'chmod +x /root/clean.master.sh'
-ssh root@192.168.43.81 'chmod +x /root/clean.node.sh'
-ssh root@192.168.43.82 'chmod +x /root/clean.node.sh'
+ssh root@192.168.${subnet_pattern}0 'chmod +x /root/clean.master.sh' &
+ssh root@192.168.${subnet_pattern}1 'chmod +x /root/clean.node.sh' &
+ssh root@192.168.${subnet_pattern}2 'chmod +x /root/clean.node.sh' &
+wait
 
 
-ssh root@192.168.43.80 '/root/clean.master.sh'
-ssh root@192.168.43.81 '/root/clean.node.sh'
-ssh root@192.168.43.82 '/root/clean.node.sh'
+ssh root@192.168.${subnet_pattern}0 '/root/clean.master.sh' &
+ssh root@192.168.${subnet_pattern}1 '/root/clean.node.sh' &
+ssh root@192.168.${subnet_pattern}2 '/root/clean.node.sh' &
+wait
