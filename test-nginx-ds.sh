@@ -1,4 +1,5 @@
 #!/bin/bash
+subnet_pattern=$1
 IFS=$'\n'
 podIPs=($(kubectl get pods -o wide | grep nginx | awk '{print $6}'))
 unset IFS
@@ -40,6 +41,6 @@ function testAndRun {
 	ssh root@$host 'chmod +x /root/testservice.sh'
 	ssh root@$host '/root/testservice.sh'
 }
-testAndRun "192.168.43.80"
-testAndRun "192.168.43.81"
-testAndRun "192.168.43.82"
+testAndRun "192.168.${subnet_pattern}0"
+testAndRun "192.168.${subnet_pattern}1"
+testAndRun "192.168.${subnet_pattern}2"
