@@ -1,0 +1,157 @@
+uri: containerops/singular/etcd-3.2.8-flanneld-0.7.1-docker-17.04.0-ce-k8s-1.9.2
+title: Deploy Kubernetes With etcd-3.2.8 flanneld-0.7.1 docker-17.04.0-ce k8s-1.9.2
+tag: latest
+nodes:
+  -
+    ip: 192.168.43.70
+    user: root
+    distro: archlinux
+  -
+    ip: 192.168.43.71
+    user: root
+    distro: archlinux
+  -
+    ip: 192.168.43.72
+    user: root
+    distro: archlinux
+tools:
+  ssh:
+    private: /home/lance/.ssh/id_rsa
+    public: /home/lance/.ssh/id_rsa.pub
+# service:
+#   region: sfo2
+#   size: 4gb
+#   image: ubuntu-17-04-x64
+#   nodes: 3
+infras:
+  -
+    name: etcd
+    version: etcd-3.2.8
+    master: 3
+    minion: 0
+    components:
+      -
+        binary: etcd
+        url: /my/k8s-binaries/etcd/3.2.8/etcd
+        package: false
+        systemd: etcd-3.2.8
+        ca: etcd-3.2.8
+      -
+        binary: etcdctl
+        url: /my/k8s-binaries/etcd/3.2.8/etcdctl
+        package: false
+  -
+    name: flannel
+    version: flannel-0.7.1
+    master: 3
+    minion: 0
+    dependencies:
+      - etcd
+    components:
+      -
+        binary: flanneld
+        url: /my/k8s-binaries/flannel/0.7.1/flanneld
+        package: false
+        systemd: flannel-0.7.1
+        ca: flannel-0.7.1
+        before:
+          # - "source /etc/profile" # special for archlinux, since arch linux bash didn't have a ~/.bashrc and the path won't be exported as expected.
+          # - "echo $PATH"
+          # - "which etcdctl"
+          - "/usr/local/bin/etcdctl --endpoints={{.Nodes}} --ca-file=/etc/kubernetes/ssl/ca.pem --cert-file=/etc/flanneld/ssl/flanneld.pem --key-file=/etc/flanneld/ssl/flanneld-key.pem set /kubernetes/network/config '{\"Network\":\"'172.30.0.0/16'\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}'"
+      -
+        binary: mk-docker-opts.sh
+        url: /my/k8s-binaries/flannel/0.7.1/mk-docker-opts.sh
+        package: false
+  -
+    name: docker
+    version: docker-17.04.0-ce
+    master: 3
+    minion: 0
+    dependencies:
+      - flannel
+    components:
+      -
+        binary: docker
+        url: /my/k8s-binaries/docker/17.04.0-ce/docker
+        package: false
+        systemd: docker-17.04.0-ce
+        before:
+          - "iptables -F"
+          - "iptables -X"
+          - "iptables -F -t nat"
+          - "iptables -X -t nat"
+        after:
+          - "iptables -w -P FORWARD ACCEPT"
+      -
+        binary: dockerd
+        url: /my/k8s-binaries/docker/17.04.0-ce/dockerd
+        package: false
+      -
+        binary: docker-init
+        url: /my/k8s-binaries/docker/17.04.0-ce/docker-init
+        package: false
+      -
+        binary: docker-proxy
+        url: /my/k8s-binaries/docker/17.04.0-ce/docker-proxy
+        package: false
+      -
+        binary: docker-runc
+        url: /my/k8s-binaries/docker/17.04.0-ce/docker-runc
+        package: false
+      -
+        binary: docker-containerd
+        url: /my/k8s-binaries/docker/17.04.0-ce/docker-containerd
+        package: false
+      -
+        binary: docker-containerd-ctr
+        url: /my/k8s-binaries/docker/17.04.0-ce/docker-containerd-ctr
+        package: false
+      -
+        binary: docker-containerd-shim
+        url: /my/k8s-binaries/docker/17.04.0-ce/docker-containerd-shim
+        package: false
+  -
+    name: kubernetes
+    version: kubernetes-1.9.2
+    master: 1
+    minion: 3
+    dependencies:
+      - etcd
+      - flannel
+      - docker
+    components:
+      -
+        binary: kube-apiserver
+        url: /my/k8s-binaries/kubernetes/1.9.2/kube-apiserver
+        package: false
+        systemd: kube-apiserver-1.9.2
+        ca: kubernetes-1.9.2
+      -
+        binary: kube-controller-manager
+        url: /my/k8s-binaries/kubernetes/1.9.2/kube-controller-manager
+        package: false
+        systemd: kube-controller-manager-1.9.2
+        ca: kubernetes-1.9.2
+      -
+        binary: kube-scheduler
+        url: /my/k8s-binaries/kubernetes/1.9.2/kube-scheduler
+        package: false
+        systemd: kube-scheduler-1.9.2
+      -
+        binary: kubectl
+        url: /my/k8s-binaries/kubernetes/1.9.2/kubectl
+        package: false
+      -
+        binary: kubelet
+        url: /my/k8s-binaries/kubernetes/1.9.2/kubelet
+        package: false
+        systemd: kubelet-1.9.2
+      -
+        binary: kube-proxy
+        url: /my/k8s-binaries/kubernetes/1.9.2/kube-proxy
+        package: false
+        systemd: kube-proxy-1.9.2
+        ca: kube-proxy-1.9.2
+description: WIP
+short: WIP
