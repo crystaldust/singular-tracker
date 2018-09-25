@@ -12,11 +12,7 @@ spec:
   - name: http
     port: 80
     targetPort: 80
-    #  externalIPs:
-    #- 192.168.43.91
-
 ---
-
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
@@ -31,8 +27,6 @@ spec:
     spec:
       containers:
       - name: my-nginx
-        # image: nginx:1.7.9
-        image: 192.168.43.156:8990/juzhen/nginx:1.7.9
-        # image: hub.opshub.sh/juzhen/nginx:1.7.9
+        image: nginx:1.7.9
         ports:
         - containerPort: 80

@@ -10,7 +10,7 @@ do
 	echo "ping -c 5 ${podIP}" >> testservice.sh
 done
 
-nodePortIP=$(kubectl get svc | grep nginx | awk '{print $2}')
+nodePortIP=$(kubectl get svc | grep nginx | awk '{print $3}')
 # Generate the parallel http request to nginx service
 
 echo "g_httpcode=''" >> testservice.sh
