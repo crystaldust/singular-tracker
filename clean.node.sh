@@ -4,8 +4,8 @@
 systemctl stop docker
 systemctl stop flanneld
 systemctl stop etcd
-systemctl stop kube-proxy.service 
-systemctl stop kubelet.service 
+systemctl stop kube-proxy.service
+systemctl stop kubelet.service
 
 # remove systemd service files
 rm -rf /etc/systemd/system/docker*
@@ -13,6 +13,7 @@ rm -rf /etc/systemd/system/kube-*
 rm -rf /etc/systemd/system/flanneld.service
 rm -rf /etc/systemd/system/etcd.service
 rm -f /etc/systemd/system/kube-proxy.service
+rm -f /etc/systemd/system/kubelet.service
 
 # remove etcd data folder
 rm -rf /var/lib/etcd
